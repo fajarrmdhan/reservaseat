@@ -14,7 +14,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
 
         Route::post('/logout', [AuthController::class, 'logout']);
-
     });
 
+    Route::middleware(['api.auth', 'role:customer'])->group(function () {
+
+        Route::get('/customer-test', function () {
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer only route'
+            ]);
+        });
+    });
 });
