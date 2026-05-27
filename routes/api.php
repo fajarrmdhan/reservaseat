@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CabangController;
 
 Route::prefix('v1')->group(function () {
 
@@ -24,5 +25,12 @@ Route::prefix('v1')->group(function () {
                 'message' => 'Customer only route'
             ]);
         });
+    });
+
+    Route::middleware(['api.auth'])->group(function () {
+
+        Route::get('/cabangs', [CabangController::class, 'index']);
+
+        Route::post('/cabangs', [CabangController::class, 'store']);
     });
 });
