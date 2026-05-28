@@ -37,8 +37,25 @@ Route::prefix('v1')->group(function () {
         Route::post('/mejas', [MejaController::class, 'store']);
     });
 
-    Route::middleware(['api.auth', 'role:customer'])->group(function () {
-        Route::post('/reservasi', [ReservasiController::class, 'store']);
-        Route::get('/my-reservasi', [ReservasiController::class, 'myReservation']);
+    Route::middleware([
+        'api.auth',
+        'role:customer'
+    ])->group(function () {
+
+        Route::post(
+            '/reservasi',
+            [ReservasiController::class, 'store']
+        );
+
+        Route::get(
+            '/my-reservasi',
+            [ReservasiController::class, 'myReservation']
+        );
+
+        Route::post(
+            '/available-meja',
+            [ReservasiController::class, 'availableMeja']
+        );
     });
+    
 });
