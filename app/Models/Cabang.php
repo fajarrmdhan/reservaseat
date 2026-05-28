@@ -16,5 +16,6 @@ class Cabang extends Model
         'jam_buka',
         'jam_tutup',
         'foto_cabang',
+        'denah_cabang',
     ];
 }

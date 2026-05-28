@@ -26,6 +26,10 @@ class CabangController extends Controller
             'alamat' => 'required',
             'jam_buka' => 'required',
             'jam_tutup' => 'required',
+
+            'foto_cabang' => 'nullable|image',
+
+            'denah_cabang' => 'nullable|image',
         ]);
 
         $fotoCabang = null;
@@ -41,12 +45,31 @@ class CabangController extends Controller
             $fotoCabang = asset('storage/cabangs/'.$filename);
         }
 
+        $denahCabang = null;
+
+        if ($request->hasFile('denah_cabang')) {
+
+            $file = $request->file('denah_cabang');
+
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            $file->storeAs('denah', $filename, 'public');
+
+            $denahCabang = asset('storage/denah/'.$filename);
+        }
+
         $cabang = Cabang::create([
             'nama_cabang' => $request->nama_cabang,
+
             'alamat' => $request->alamat,
+
             'jam_buka' => $request->jam_buka,
+
             'jam_tutup' => $request->jam_tutup,
+
             'foto_cabang' => $fotoCabang,
+
+            'denah_cabang' => $denahCabang,
         ]);
 
         return response()->json([
