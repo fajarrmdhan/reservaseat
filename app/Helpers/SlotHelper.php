@@ -24,7 +24,7 @@ class SlotHelper
 
         for (
             $i = 0;
-            $i <= $totalSlot;
+            $i < $totalSlot;
             $i++
         ) {
 
