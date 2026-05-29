@@ -57,5 +57,25 @@ Route::prefix('v1')->group(function () {
             [ReservasiController::class, 'availableMeja']
         );
     });
-    
+
+    Route::middleware([
+        'api.auth',
+        'role:admin_cabang'
+    ])->group(function () {
+
+        Route::post(
+            '/reservasi/check-in',
+            [ReservasiController::class, 'checkIn']
+        );
+
+        Route::post(
+            '/reservasi/complete',
+            [ReservasiController::class, 'complete']
+        );
+
+        Route::post(
+            '/reservasi/cancel',
+            [ReservasiController::class, 'cancel']
+        );
+    });
 });

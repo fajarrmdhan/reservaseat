@@ -18,11 +18,19 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Kasir Cabang',
-            'email' => 'kasir@reservaseat.com',
+            'name' => 'Admin Cabang',
+            'email' => 'cabang@reservaseat.com',
             'phone' => '082222222222',
             'password' => bcrypt('password123'),
-            'role' => 'kasir',
+            'role' => 'admin_cabang',
+        ]);
+
+        User::create([
+            'name' => 'Customer Demo',
+            'email' => 'customer@reservaseat.com',
+            'phone' => '083333333333',
+            'password' => bcrypt('password123'),
+            'role' => 'customer',
         ]);
     }
 }

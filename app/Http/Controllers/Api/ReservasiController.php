@@ -260,4 +260,121 @@ class ReservasiController extends Controller
             'data' => $availableMejas
         ]);
     }
+
+    public function checkIn(Request $request)
+    {
+        $request->validate([
+            'kode_reservasi' => 'required'
+        ]);
+
+        $reservasi = Reservasi::where(
+            'kode_reservasi',
+            $request->kode_reservasi
+        )->first();
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        if (!in_array(
+            $reservasi->status,
+            ['pending', 'paid']
+        )) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak dapat check in'
+            ], 422);
+        }
+
+        $reservasi->status = 'checked_in';
+
+        $reservasi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Check in berhasil',
+            'data' => $reservasi
+        ]);
+    }
+
+    public function complete(Request $request)
+    {
+        $request->validate([
+            'reservasi_id' => 'required'
+        ]);
+
+        $reservasi = Reservasi::find(
+            $request->reservasi_id
+        );
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        if ($reservasi->status !== 'checked_in') {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi belum check in'
+            ], 422);
+        }
+
+        $reservasi->status = 'completed';
+
+        $reservasi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reservasi selesai',
+            'data' => $reservasi
+        ]);
+    }
+
+    public function cancel(Request $request)
+    {
+        $request->validate([
+            'reservasi_id' => 'required'
+        ]);
+
+        $reservasi = Reservasi::find(
+            $request->reservasi_id
+        );
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        if (
+            $reservasi->status === 'completed'
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi sudah selesai'
+            ], 422);
+        }
+
+        $reservasi->status = 'cancelled';
+
+        $reservasi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reservasi dibatalkan',
+            'data' => $reservasi
+        ]);
+    }
 }
