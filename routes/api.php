@@ -19,29 +19,6 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['api.auth', 'role:customer'])->group(function () {
 
-        Route::get('/customer-test', function () {
-            return response()->json([
-                'success' => true,
-                'message' => 'Customer only route'
-            ]);
-        });
-    });
-
-    Route::middleware(['api.auth'])->group(function () {
-        Route::get('/cabangs', [CabangController::class, 'index']);
-        Route::post('/cabangs', [CabangController::class, 'store']);
-    });
-
-    Route::middleware(['api.auth'])->group(function () {
-        Route::get('/mejas', [MejaController::class, 'index']);
-        Route::post('/mejas', [MejaController::class, 'store']);
-    });
-
-    Route::middleware([
-        'api.auth',
-        'role:customer'
-    ])->group(function () {
-
         Route::post(
             '/reservasi',
             [ReservasiController::class, 'store']
@@ -56,6 +33,26 @@ Route::prefix('v1')->group(function () {
             '/available-meja',
             [ReservasiController::class, 'availableMeja']
         );
+
+        Route::get(
+            '/reservasi/{id}',
+            [ReservasiController::class, 'detailReservation']
+        );
+
+        Route::post(
+            '/reservasi/{id}/cancel',
+            [ReservasiController::class, 'cancelReservation']
+        );
+    });
+
+    Route::middleware(['api.auth'])->group(function () {
+        Route::get('/cabangs', [CabangController::class, 'index']);
+        Route::post('/cabangs', [CabangController::class, 'store']);
+    });
+
+    Route::middleware(['api.auth'])->group(function () {
+        Route::get('/mejas', [MejaController::class, 'index']);
+        Route::post('/mejas', [MejaController::class, 'store']);
     });
 
     Route::middleware([

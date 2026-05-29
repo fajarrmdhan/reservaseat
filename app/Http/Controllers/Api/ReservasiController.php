@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Meja;
 use App\Models\Reservasi;
 use Illuminate\Http\Request;
+use App\Models\Cabang;
 
 class ReservasiController extends Controller
 {
@@ -375,6 +376,94 @@ class ReservasiController extends Controller
             'success' => true,
             'message' => 'Reservasi dibatalkan',
             'data' => $reservasi
+        ]);
+    }
+
+    public function detailReservation(
+        Request $request,
+        string $id
+    ) {
+        $user = $request->auth_user;
+
+        $reservasi = Reservasi::where(
+            '_id',
+            $id
+        )
+            ->where(
+                'user_id',
+                $user->_id
+            )
+            ->first();
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        $meja = Meja::find(
+            $reservasi->meja_id
+        );
+
+        $cabang = Cabang::find(
+            $reservasi->cabang_id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail reservasi',
+            'data' => [
+                'reservasi' => $reservasi,
+                'meja' => $meja,
+                'cabang' => $cabang
+            ]
+        ]);
+    }
+
+    public function cancelReservation(
+        Request $request,
+        string $id
+    ) {
+        $user = $request->auth_user;
+
+        $reservasi = Reservasi::where(
+            '_id',
+            $id
+        )
+            ->where(
+                'user_id',
+                $user->_id
+            )
+            ->first();
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        if (!in_array(
+            $reservasi->status,
+            ['pending', 'paid']
+        )) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak dapat dibatalkan'
+            ], 422);
+        }
+
+        $reservasi->status = 'cancelled';
+
+        $reservasi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Reservasi berhasil dibatalkan'
         ]);
     }
 }
