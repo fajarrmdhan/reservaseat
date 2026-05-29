@@ -31,6 +31,14 @@ class ReservasiController extends Controller
 
         $meja = Meja::find($request->meja_id);
 
+        if (!$meja) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Meja tidak ditemukan'
+            ], 404);
+        }
+
         $cabang = $meja->cabang;
 
         $jamMulai = \Carbon\Carbon::createFromFormat(
@@ -53,14 +61,6 @@ class ReservasiController extends Controller
                 'success' => false,
                 'message' => 'Reservasi melebihi jam operasional cabang'
             ], 422);
-        }
-
-        if (!$meja) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Meja tidak ditemukan'
-            ], 404);
         }
 
         if ($meja->status !== 'active') {
