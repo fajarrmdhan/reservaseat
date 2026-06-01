@@ -20,7 +20,7 @@ class ReservasiController extends Controller
 
             'meja_id' => 'required',
 
-            'tanggal_booking' => 'required|date',
+            'tanggal_booking' => 'required|date|after_or_equal:today',
 
             'jam_mulai' => 'required',
 
@@ -33,6 +33,14 @@ class ReservasiController extends Controller
 
         $meja = Meja::find($request->meja_id);
 
+        if (!$meja) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Meja tidak ditemukan'
+            ], 404);
+        }
+
         if (
             (string)$meja->cabang_id !==
             (string)$request->cabang_id
@@ -41,14 +49,6 @@ class ReservasiController extends Controller
                 'success' => false,
                 'message' => 'Meja tidak sesuai cabang'
             ], 422);
-        }
-
-        if (!$meja) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Meja tidak ditemukan'
-            ], 404);
         }
 
         $cabang = $meja->cabang;
@@ -195,7 +195,7 @@ class ReservasiController extends Controller
 
             'cabang_id' => 'required',
 
-            'tanggal_booking' => 'required|date',
+            'tanggal_booking' => 'required|date|after_or_equal:today',
 
             'jam_mulai' => 'required',
 

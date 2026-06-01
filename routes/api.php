@@ -32,6 +32,11 @@ Route::prefix('v1')->group(function () {
         );
 
         Route::post(
+            '/available-jam',
+            [ReservasiController::class, 'availableJam']
+        );
+
+        Route::post(
             '/available-meja',
             [ReservasiController::class, 'availableMeja']
         );
