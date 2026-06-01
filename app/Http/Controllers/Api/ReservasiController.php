@@ -8,6 +8,7 @@ use App\Models\Meja;
 use App\Models\Reservasi;
 use Illuminate\Http\Request;
 use App\Models\Cabang;
+use Carbon\Carbon;
 
 class ReservasiController extends Controller
 {
@@ -32,6 +33,16 @@ class ReservasiController extends Controller
 
         $meja = Meja::find($request->meja_id);
 
+        if (
+            (string)$meja->cabang_id !==
+            (string)$request->cabang_id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Meja tidak sesuai cabang'
+            ], 422);
+        }
+
         if (!$meja) {
 
             return response()->json([
@@ -42,12 +53,17 @@ class ReservasiController extends Controller
 
         $cabang = $meja->cabang;
 
-        $jamMulai = \Carbon\Carbon::createFromFormat(
+        $jamBuka = Carbon::createFromFormat(
+            'H:i',
+            $cabang->jam_buka
+        );
+
+        $jamMulai = Carbon::createFromFormat(
             'H:i',
             $request->jam_mulai
         );
 
-        $jamTutup = \Carbon\Carbon::createFromFormat(
+        $jamTutup = Carbon::createFromFormat(
             'H:i',
             $cabang->jam_tutup
         );
@@ -56,11 +72,15 @@ class ReservasiController extends Controller
             ->copy()
             ->addHours($request->durasi);
 
-        if ($jamSelesai->gt($jamTutup)) {
+        if (
+            $jamMulai->lt($jamBuka)
+            ||
+            $jamSelesai->gt($jamTutup)
+        ) {
 
             return response()->json([
                 'success' => false,
-                'message' => 'Reservasi melebihi jam operasional cabang'
+                'message' => 'Reservasi di luar jam operasional cabang'
             ], 422);
         }
 
@@ -183,6 +203,41 @@ class ReservasiController extends Controller
 
             'kapasitas' => 'required|numeric|min:1',
         ]);
+
+        $cabang = Cabang::find(
+            $request->cabang_id
+        );
+
+        $jamBuka = Carbon::createFromFormat(
+            'H:i',
+            $cabang->jam_buka
+        );
+
+        $jamMulai = Carbon::createFromFormat(
+            'H:i',
+            $request->jam_mulai
+        );
+
+        $jamTutup = Carbon::createFromFormat(
+            'H:i',
+            $cabang->jam_tutup
+        );
+
+        $jamSelesai = $jamMulai
+            ->copy()
+            ->addHours($request->durasi);
+
+        if (
+            $jamMulai->lt($jamBuka)
+            ||
+            $jamSelesai->gt($jamTutup)
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi di luar jam operasional cabang'
+            ], 422);
+        }
 
         $blockedSlots =
             SlotHelper::generateBlockedSlots(
@@ -464,6 +519,142 @@ class ReservasiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Reservasi berhasil dibatalkan'
+        ]);
+    }
+
+    public function listReservasiCabang(Request $request)
+    {
+        $user = $request->auth_user;
+
+        $reservasis = Reservasi::where(
+            'cabang_id',
+            $user->cabang_id
+        )
+            ->orderBy(
+                'tanggal_booking',
+                'desc'
+            )
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $reservasis
+        ]);
+    }
+
+    public function detailReservasiCabang(
+        Request $request,
+        string $id
+    ) {
+        $user = $request->auth_user;
+
+        $reservasi = Reservasi::where(
+            '_id',
+            $id
+        )
+            ->where(
+                'cabang_id',
+                $user->cabang_id
+            )
+            ->first();
+
+        if (!$reservasi) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Reservasi tidak ditemukan'
+            ], 404);
+        }
+
+        $meja = Meja::find(
+            $reservasi->meja_id
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'reservasi' => $reservasi,
+                'meja' => $meja
+            ]
+        ]);
+    }
+
+    public function reservasiHariIni(
+        Request $request
+    ) {
+        $user = $request->auth_user;
+
+        $today = now()->format('Y-m-d');
+
+        $reservasis = Reservasi::where(
+            'cabang_id',
+            $user->cabang_id
+        )
+            ->where(
+                'tanggal_booking',
+                $today
+            )
+            ->orderBy('jam_mulai', 'asc')
+
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $reservasis
+        ]);
+    }
+
+    public function availableJam(Request $request)
+    {
+        $request->validate([
+            'cabang_id' => 'required',
+            'durasi' => 'required|numeric|min:1|max:4',
+        ]);
+
+        $cabang = Cabang::find(
+            $request->cabang_id
+        );
+
+        if (!$cabang) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Cabang tidak ditemukan'
+            ], 404);
+        }
+
+        $jamBuka = \Carbon\Carbon::createFromFormat(
+            'H:i',
+            $cabang->jam_buka
+        );
+
+        $jamTutup = \Carbon\Carbon::createFromFormat(
+            'H:i',
+            $cabang->jam_tutup
+        );
+
+        $jamTerakhir = $jamTutup
+            ->copy()
+            ->subHours(
+                (int) $request->durasi
+            );
+
+        $jamTersedia = [];
+
+        while (
+            $jamBuka->lte($jamTerakhir)
+        ) {
+
+            $jamTersedia[] =
+                $jamBuka->format('H:i');
+
+            $jamBuka->addMinutes(30);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'List jam tersedia',
+            'data' => $jamTersedia
         ]);
     }
 }

@@ -101,6 +101,66 @@ class AuthController extends Controller
         ]);
     }
 
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email tidak ditemukan'
+            ], 401);
+        }
+
+        if (
+            !in_array(
+                $user->role,
+                [
+                    'admin_master',
+                    'admin_cabang'
+                ]
+            )
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak'
+            ], 403);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password salah'
+            ], 401);
+        }
+
+        $plainTextToken = Str::random(40);
+        $token = hash('sha256', $plainTextToken);
+
+        PersonalAccessToken::create([
+            'tokenable_id' => $user->_id,
+            'tokenable_type' => User::class,
+            'name' => 'customer_token',
+            'token' => $token,
+            'abilities' => ['*'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login berhasil',
+            'data' => [
+                'token' => $plainTextToken,
+                'user' => $user
+            ]
+        ]);
+    }
+
+
     public function profile(Request $request)
     {
         return response()->json([

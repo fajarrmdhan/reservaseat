@@ -12,6 +12,8 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
 
+    Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
     Route::middleware('api.auth')->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -45,16 +47,6 @@ Route::prefix('v1')->group(function () {
         );
     });
 
-    Route::middleware(['api.auth'])->group(function () {
-        Route::get('/cabangs', [CabangController::class, 'index']);
-        Route::post('/cabangs', [CabangController::class, 'store']);
-    });
-
-    Route::middleware(['api.auth'])->group(function () {
-        Route::get('/mejas', [MejaController::class, 'index']);
-        Route::post('/mejas', [MejaController::class, 'store']);
-    });
-
     Route::middleware([
         'api.auth',
         'role:admin_cabang'
@@ -73,6 +65,55 @@ Route::prefix('v1')->group(function () {
         Route::post(
             '/reservasi/cancel',
             [ReservasiController::class, 'cancel']
+        );
+
+        Route::get(
+            '/admin/reservasi',
+            [
+                ReservasiController::class,
+                'listReservasiCabang'
+            ]
+        );
+
+        Route::get(
+            '/admin/reservasi/hari-ini',
+            [
+                ReservasiController::class,
+                'reservasiHariIni'
+            ]
+        );
+
+        Route::get(
+            '/admin/reservasi/{id}',
+            [
+                ReservasiController::class,
+                'detailReservasiCabang'
+            ]
+        );
+
+        Route::get(
+            '/admin/mejas',
+            [MejaController::class, 'myCabangMejas']
+        );
+
+        Route::post(
+            '/admin/mejas',
+            [MejaController::class, 'store']
+        );
+
+        Route::put(
+            '/admin/mejas/{id}',
+            [MejaController::class, 'update']
+        );
+
+        Route::patch(
+            '/admin/mejas/{id}/maintenance',
+            [MejaController::class, 'maintenance']
+        );
+
+        Route::patch(
+            '/admin/mejas/{id}/activate',
+            [MejaController::class, 'activate']
         );
     });
 });
