@@ -2,11 +2,14 @@
 
     <div class="container-fluid">
 
-        <h1 class="navbar-brand">
-
-            ReservaSeat
-
-        </h1>
+        <div class="navbar-brand d-flex align-items-center gap-3 py-3 w-100"> <img
+                src="{{ asset('logo_reserva_seat.png') }}" alt="ReservaSeat Logo" width="42">
+            <div>
+                <div style=" font-size: 1rem; font-weight: 700; line-height: 1.2; "> ReservaSeat </div>
+                <div class="text-secondary" style=" font-size: .75rem; "> Admin Panel </div>
+            </div>
+        </div>
+        <div class="border-bottom mb-3"></div>
 
         <div class="collapse navbar-collapse show">
 
@@ -104,21 +107,19 @@
 
                 <li class="nav-item">
 
-                    <a class="nav-link {{ request()->is('') ? 'active' : '' }}" href="">
+                    <form method="POST" action="/admin/logout">
 
-                        <span class="nav-link-icon">
+                        @csrf
 
-                            <i class="bi bi-box-arrow-right"></i>
+                        <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
 
-                        </span>
-
-                        <span class="nav-link-title">
+                            <i class="bi bi-box-arrow-right me-2"></i>
 
                             Logout
 
-                        </span>
+                        </button>
 
-                    </a>
+                    </form>
 
                 </li>
 

@@ -1,155 +1,440 @@
 @extends('layouts.app')
 
 @section('title')
-Admin Cabang
+    Admin Cabang
 @endsection
 
 @section('content')
+    <div class="page-header mb-4">
 
-<div class="page-header mb-4">
+        <div class="row align-items-center">
 
-    <div class="row align-items-center">
+            <div class="col">
 
-        <div class="col">
+                <div class="page-pretitle">
+                    Management
+                </div>
 
-            <div class="page-pretitle">
-                Management
+                <h2 class="page-title">
+                    Admin Cabang
+                </h2>
+
             </div>
 
-            <h2 class="page-title">
-                Admin Cabang
-            </h2>
+            <div class="col-auto">
 
-        </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahAdmin">
 
-        <div class="col-auto">
+                    Tambah Admin
 
-            <button
-                class="btn btn-primary">
+                </button>
 
-                Tambah Admin
-
-            </button>
+            </div>
 
         </div>
 
     </div>
 
-</div>
+    <div class="card">
 
-<div class="card">
+        <div class="table-responsive">
 
-    <div class="table-responsive">
+            <table class="table table-vcenter">
 
-        <table class="table table-vcenter">
+                <thead>
 
-            <thead>
+                    <tr>
 
-                <tr>
+                        <th>Nama</th>
 
-                    <th>Nama</th>
+                        <th>Email</th>
 
-                    <th>Email</th>
+                        <th>Telepon</th>
 
-                    <th>Telepon</th>
+                        <th>Status</th>
 
-                    <th>Status</th>
+                        <th width="180">
+                            Aksi
+                        </th>
 
-                    <th width="180">
-                        Aksi
-                    </th>
+                    </tr>
 
-                </tr>
+                </thead>
 
-            </thead>
+                <tbody>
 
-            <tbody>
+                    @foreach ($admins as $admin)
+                        <tr>
 
-                @foreach($admins as $admin)
+                            <td>
+                                {{ $admin->name }}
+                            </td>
 
-                <tr>
+                            <td>
+                                {{ $admin->email }}
+                            </td>
 
-                    <td>
-                        {{ $admin->name }}
-                    </td>
+                            <td>
+                                {{ $admin->phone }}
+                            </td>
 
-                    <td>
-                        {{ $admin->email }}
-                    </td>
+                            <td>
 
-                    <td>
-                        {{ $admin->phone }}
-                    </td>
+                                @if ($admin->status === 'active')
+                                    <span class="badge bg-success text-white">
 
-                    <td>
+                                        Aktif
 
-                        @if(
-                            $admin->status === 'active'
-                        )
+                                    </span>
+                                @else
+                                    <span class="badge bg-danger text-white">
 
-                            <span
-                                class="badge bg-success text-white">
+                                        Nonaktif
 
-                                Aktif
+                                    </span>
+                                @endif
 
-                            </span>
+                            </td>
 
-                        @else
+                            <td>
 
-                            <span
-                                class="badge bg-danger text-white">
+                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                    data-bs-target="#editAdmin{{ $admin->_id }}">
 
-                                Nonaktif
+                                    Edit
 
-                            </span>
+                                </button>
 
+                                @if ($admin->status === 'active')
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deactivateAdmin{{ $admin->_id }}">
+
+                                        Nonaktifkan
+
+                                    </button>
+                                @endif
+
+                                @if ($admin->status !== 'active')
+                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#activateAdmin{{ $admin->_id }}">
+
+                                        Aktifkan
+
+                                    </button>
+                                @endif
+
+                            </td>
+
+                        </tr>
+
+                        <x-modal id="editAdmin{{ $admin->_id }}" title="Edit Admin Cabang">
+
+                            <form method="POST" action="/admin-cabangs/{{ $admin->_id }}">
+
+                                @csrf
+                                @method('PATCH')
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Nama
+                                    </label>
+
+                                    <input type="text" name="name" value="{{ $admin->name }}" class="form-control">
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Email
+                                    </label>
+
+                                    <input type="email" name="email" value="{{ $admin->email }}" class="form-control">
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Telepon
+                                    </label>
+
+                                    <input type="text" name="phone" value="{{ $admin->phone }}" class="form-control">
+
+                                </div>
+
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Cabang
+                                    </label>
+
+                                    <select name="cabang_id" class="form-select">
+
+                                        @foreach ($cabangs as $cabang)
+                                            <option value="{{ $cabang->_id }}"
+                                                {{ $admin->cabang_id == $cabang->_id ? 'selected' : '' }}>
+
+                                                {{ $cabang->nama_cabang }}
+
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                                <div class="text-end">
+
+                                    <button type="submit" class="btn btn-primary">
+
+                                        Update
+
+                                    </button>
+                                    <hr>
+                                </div>
+
+                                <div class="mt-3">
+
+                                    <label class="form-label">
+
+                                        Keamanan Akun
+
+                                    </label>
+
+                                    <p class="text-secondary mb-3">
+
+                                        Reset password admin ke password default: password123
+
+                                    </p>
+
+                                    <form method="POST" action="/admin-cabangs/{{ $admin->_id }}/reset-password">
+
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#resetPassword{{ $admin->_id }}">
+
+                                            Reset Password ke Default?
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </form>
+
+                        </x-modal>
+
+                        @if ($admin->status === 'active')
+                            <x-modal id="deactivateAdmin{{ $admin->_id }}" title="Nonaktifkan Admin">
+
+                                <p>
+
+                                    Yakin ingin menonaktifkan
+
+                                    <strong>
+                                        {{ $admin->name }}
+                                    </strong>?
+
+                                </p>
+
+                                <form method="POST" action="/admin-cabangs/{{ $admin->_id }}/deactivate">
+
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <div class="text-end">
+
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                            Batal
+
+                                        </button>
+
+                                        <button type="submit" class="btn btn-danger">
+
+                                            Nonaktifkan
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </x-modal>
                         @endif
 
-                    </td>
+                        @if ($admin->status !== 'active')
+                            <x-modal id="activateAdmin{{ $admin->_id }}" title="Aktifkan Admin">
 
-                    <td>
+                                <p>
 
-                        <button
-                            class="btn btn-sm btn-warning">
+                                    Yakin ingin mengaktifkan
 
-                            Edit
+                                    <strong>
+                                        {{ $admin->name }}
+                                    </strong>?
 
-                        </button>
+                                </p>
 
-                        @if(
-                            $admin->status === 'active'
-                        )
+                                <form method="POST" action="/admin-cabangs/{{ $admin->_id }}/activate">
 
-                            <button
-                                class="btn btn-sm btn-danger">
+                                    @csrf
+                                    @method('PATCH')
 
-                                Nonaktifkan
+                                    <div class="text-end">
 
-                            </button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
 
-                        @else
+                                            Batal
 
-                            <button
-                                class="btn btn-sm btn-success">
+                                        </button>
 
-                                Aktifkan
+                                        <button type="submit" class="btn btn-success">
 
-                            </button>
+                                            Aktifkan
 
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </x-modal>
                         @endif
 
-                    </td>
+                        <x-modal id="resetPassword{{ $admin->_id }}" title="Konfirmasi Reset Password">
 
-                </tr>
+                            <div class="alert alert-danger">
 
-                @endforeach
+                                Password admin ini akan direset menjadi:
 
-            </tbody>
+                                <strong>
+                                    password123
+                                </strong>
 
-        </table>
+                            </div>
+
+                            <p>
+
+                                Admin cabang harus menggunakan password baru tersebut
+                                saat login berikutnya.
+
+                            </p>
+
+                            <form method="POST" action="/admin-cabangs/{{ $admin->_id }}/reset-password">
+
+                                @csrf
+                                @method('PATCH')
+
+                                <div class="text-end">
+
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                        Batal
+
+                                    </button>
+
+                                    <button type="submit" class="btn btn-danger">
+
+                                        Ya, Reset Password
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </x-modal>
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-</div>
+    <x-modal id="modalTambahAdmin" title="Tambah Admin Cabang">
 
+        <form method="POST" action="/admin-cabangs">
+
+            @csrf
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Nama
+                </label>
+
+                <input type="text" name="name" class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Email
+                </label>
+
+                <input type="email" name="email" class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Telepon
+                </label>
+
+                <input type="text" name="phone" class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Cabang
+                </label>
+
+                <select name="cabang_id" class="form-select">
+
+                    @foreach ($cabangs as $cabang)
+                        <option value="{{ $cabang->_id }}">
+
+                            {{ $cabang->nama_cabang }}
+
+                        </option>
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <div class="alert alert-info">
+
+                Password awal:
+                <strong>password123</strong>
+
+            </div>
+
+            <div class="text-end">
+
+                <button type="submit" class="btn btn-primary">
+
+                    Simpan
+
+                </button>
+                <hr>
+
+            </div>
+
+        </form>
+
+    </x-modal>
 @endsection
