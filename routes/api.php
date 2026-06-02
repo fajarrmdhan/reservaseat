@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CabangController;
 use App\Http\Controllers\Api\MejaController;
 use App\Http\Controllers\Api\ReservasiController;
+use App\Http\Controllers\Api\AdminMasterController;
+use App\Http\Controllers\Api\AdminCabangController;
 
 Route::prefix('v1')->group(function () {
 
@@ -121,4 +123,59 @@ Route::prefix('v1')->group(function () {
             [MejaController::class, 'activate']
         );
     });
+
+    Route::middleware([
+        'api.auth',
+        'role:admin_master'
+    ])->prefix('master')
+        ->group(function () {
+
+            Route::get(
+                '/dashboard',
+                [AdminMasterController::class, 'dashboard']
+            );
+
+            Route::get(
+                '/cabangs',
+                [CabangController::class, 'index']
+            );
+
+            Route::post(
+                '/cabangs',
+                [CabangController::class, 'store']
+            );
+
+            Route::get(
+                '/cabangs/{id}',
+                [CabangController::class, 'show']
+            );
+
+            Route::put(
+                '/cabangs/{id}',
+                [
+                    CabangController::class,
+                    'update'
+                ]
+            );
+
+            Route::get(
+                '/admin-cabangs',
+                [AdminCabangController::class, 'index']
+            );
+
+            Route::post(
+                '/admin-cabangs',
+                [AdminCabangController::class, 'store']
+            );
+
+            Route::get(
+                '/admin-cabangs/{id}',
+                [AdminCabangController::class, 'show']
+            );
+
+            Route::put(
+                '/admin-cabangs/{id}',
+                [AdminCabangController::class, 'update']
+            );
+        });
 });
