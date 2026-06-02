@@ -28,6 +28,7 @@ class User extends Authenticatable
         'photo_profile',
         'role',
         'cabang_id',
+        'status',
     ];
 
     protected $hidden = [

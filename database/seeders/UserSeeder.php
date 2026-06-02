@@ -38,6 +38,7 @@ class UserSeeder extends Seeder
             'photo_profile' => null,
             'role' => 'admin_cabang',
             'cabang_id' => $bogor->_id,
+            'status' => 'active'
         ]);
 
         User::create([

@@ -26,6 +26,7 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
             'role' => 'customer',
+            'status' => 'active'
         ]);
 
         // Manual token generation
@@ -115,6 +116,16 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Email tidak ditemukan'
             ], 401);
+        }
+
+        if (
+            $user->status === 'inactive'
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun dinonaktifkan'
+            ], 403);
         }
 
         if (

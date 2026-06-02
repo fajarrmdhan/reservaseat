@@ -53,6 +53,16 @@ class ReservasiController extends Controller
 
         $cabang = $meja->cabang;
 
+        if (
+            $cabang->status !== 'active'
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Cabang dinonaktifkan, tidak menerima reservasi'
+            ], 422);
+        }
+
         $jamBuka = Carbon::createFromFormat(
             'H:i',
             $cabang->jam_buka
@@ -207,6 +217,16 @@ class ReservasiController extends Controller
         $cabang = Cabang::find(
             $request->cabang_id
         );
+
+        if (
+            $cabang->status !== 'active'
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Cabang dinonaktifkan'
+            ], 422);
+        }
 
         $jamBuka = Carbon::createFromFormat(
             'H:i',
@@ -621,6 +641,16 @@ class ReservasiController extends Controller
                 'success' => false,
                 'message' => 'Cabang tidak ditemukan'
             ], 404);
+        }
+
+        if (
+            $cabang->status !== 'active'
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Cabang dinonaktifkan'
+            ], 422);
         }
 
         $jamBuka = \Carbon\Carbon::createFromFormat(

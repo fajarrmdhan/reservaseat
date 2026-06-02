@@ -150,7 +150,7 @@ Route::prefix('v1')->group(function () {
                 [CabangController::class, 'show']
             );
 
-            Route::put(
+            Route::patch(
                 '/cabangs/{id}',
                 [
                     CabangController::class,
@@ -173,9 +173,29 @@ Route::prefix('v1')->group(function () {
                 [AdminCabangController::class, 'show']
             );
 
-            Route::put(
+            Route::patch(
                 '/admin-cabangs/{id}',
                 [AdminCabangController::class, 'update']
+            );
+
+            Route::patch(
+                '/cabangs/{id}/deactivate',
+                [CabangController::class, 'deactivate']
+            );
+
+            Route::patch(
+                '/cabangs/{id}/activate',
+                [CabangController::class, 'activate']
+            );
+
+            Route::patch(
+                '/admin-cabangs/{id}/deactivate',
+                [AdminCabangController::class, 'deactivate']
+            );
+
+            Route::patch(
+                '/admin-cabangs/{id}/activate',
+                [AdminCabangController::class, 'activate']
             );
         });
 });

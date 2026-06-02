@@ -16,6 +16,7 @@ class CabangSeeder extends Seeder
             'jam_tutup' => '22:00',
             'foto_cabang' => null,
             'denah_cabang' => null,
+            'status' => 'active'
         ]);
 
         Cabang::create([
@@ -25,6 +26,7 @@ class CabangSeeder extends Seeder
             'jam_tutup' => '22:00',
             'foto_cabang' => null,
             'denah_cabang' => null,
+            'status' => 'active'
         ]);
     }
 }

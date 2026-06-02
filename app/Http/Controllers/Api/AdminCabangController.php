@@ -28,11 +28,11 @@ class AdminCabangController extends Controller
             '_id',
             $id
         )
-        ->where(
-            'role',
-            'admin_cabang'
-        )
-        ->first();
+            ->where(
+                'role',
+                'admin_cabang'
+            )
+            ->first();
 
         if (!$admin) {
             return response()->json([
@@ -65,6 +65,7 @@ class AdminCabangController extends Controller
             'photo_profile' => null,
             'role' => 'admin_cabang',
             'cabang_id' => $request->cabang_id,
+            'status' => 'active'
         ]);
 
         return response()->json([
@@ -82,11 +83,11 @@ class AdminCabangController extends Controller
             '_id',
             $id
         )
-        ->where(
-            'role',
-            'admin_cabang'
-        )
-        ->first();
+            ->where(
+                'role',
+                'admin_cabang'
+            )
+            ->first();
 
         if (!$admin) {
             return response()->json([
@@ -96,23 +97,102 @@ class AdminCabangController extends Controller
         }
 
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'cabang_id' => 'required'
+            'name' => 'sometimes|required',
+            'email' => 'sometimes|required|email',
+            'phone' => 'sometimes|required',
+            'cabang_id' => 'sometimes|required'
         ]);
 
-        $admin->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'cabang_id' => $request->cabang_id,
-        ]);
+        $data = [];
+
+        if ($request->has('name')) {
+            $data['name'] = $request->name;
+        }
+
+        if ($request->has('email')) {
+            $data['email'] = $request->email;
+        }
+
+        if ($request->has('phone')) {
+            $data['phone'] = $request->phone;
+        }
+
+        if ($request->has('cabang_id')) {
+            $data['cabang_id'] = $request->cabang_id;
+        }
+
+        if (empty($data)) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data yang diperbarui'
+            ], 422);
+        }
+
+        $admin->update($data);
 
         return response()->json([
             'success' => true,
             'message' => 'Admin cabang berhasil diperbarui',
             'data' => $admin
+        ]);
+    }
+
+    public function deactivate(string $id)
+    {
+        $admin = User::where(
+            '_id',
+            $id
+        )
+            ->where(
+                'role',
+                'admin_cabang'
+            )
+            ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin cabang tidak ditemukan'
+            ], 404);
+        }
+
+        $admin->status = 'inactive';
+
+        $admin->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin cabang berhasil dinonaktifkan'
+        ]);
+    }
+
+    public function activate(string $id)
+    {
+        $admin = User::where(
+            '_id',
+            $id
+        )
+            ->where(
+                'role',
+                'admin_cabang'
+            )
+            ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin cabang tidak ditemukan'
+            ], 404);
+        }
+
+        $admin->status = 'active';
+
+        $admin->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin cabang berhasil diaktifkan'
         ]);
     }
 }
