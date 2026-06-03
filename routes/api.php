@@ -14,6 +14,13 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
 
+        Route::get(
+        '/cabangs',
+        [CabangController::class, 'index']
+    );
+
+    Route::get('/cabangs', [CabangController::class, 'index']);
+
     Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
     Route::middleware('api.auth')->group(function () {
@@ -198,4 +205,6 @@ Route::prefix('v1')->group(function () {
                 [AdminCabangController::class, 'activate']
             );
         });
+
+
 });

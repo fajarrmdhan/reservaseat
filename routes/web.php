@@ -5,6 +5,9 @@ use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\CabangController;
 use App\Http\Controllers\Web\AdminCabangController;
 use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\AdminCabangDashboardController;
+use App\Http\Controllers\Web\AdminCabangReservasiController;
+use App\Http\Controllers\Web\AdminCabangMejaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -84,10 +87,60 @@ Route::middleware([
         '/admin-cabangs/{id}/reset-password',
         [AdminCabangController::class, 'resetPassword']
     );
-
 });
 
+Route::prefix('admin-cabang')
+    ->middleware([
+        'auth',
+        'web.role:admin_cabang'
+    ])
+    ->group(function () {
 
+        Route::get(
+            '/dashboard',
+            [AdminCabangDashboardController::class, 'index']
+        );
+
+        Route::get(
+            '/reservasi-hari-ini',
+            [AdminCabangReservasiController::class, 'hariIni']
+        );
+
+        Route::resource(
+            'meja',
+            AdminCabangMejaController::class
+        );
+
+        Route::patch(
+            '/meja/{id}/aktifkan',
+            [AdminCabangMejaController::class, 'aktifkan']
+        );
+
+        Route::patch(
+            '/meja/{id}/nonaktifkan',
+            [AdminCabangMejaController::class, 'nonaktifkan']
+        );
+
+        Route::patch(
+            '/reservasi/{id}/check-in',
+            [AdminCabangReservasiController::class, 'checkIn']
+        );
+
+        Route::patch(
+            '/reservasi/{id}/complete',
+            [AdminCabangReservasiController::class, 'complete']
+        );
+
+        Route::patch(
+            '/reservasi/{id}/cancel',
+            [AdminCabangReservasiController::class, 'cancel']
+        );
+
+        Route::get(
+            '/histori-reservasi',
+            [AdminCabangReservasiController::class, 'histori']
+        )->name('admin-cabang.histori');
+    });
 
 //login page
 Route::get(

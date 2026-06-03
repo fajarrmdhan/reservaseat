@@ -1,7 +1,4 @@
-<div
-    class="modal modal-blur fade"
-    id="{{ $id }}"
-    tabindex="-1">
+<div class="modal modal-blur fade" id="{{ $id }}" tabindex="-1">
 
     <div class="modal-dialog modal-lg">
 
@@ -15,10 +12,7 @@
 
                 </h5>
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal">
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
                 </button>
 
             </div>

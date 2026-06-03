@@ -39,4 +39,13 @@ class Reservasi extends Model
 
         'blocked_slots' => 'array',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(
+            User::class,
+            'user_id',
+            'id'
+        );
+    }
 }
