@@ -76,6 +76,7 @@
 
                     <th>Kode</th>
                     <th>Nama</th>
+                    <th>Meja</th>
                     <th>Tanggal</th>
                     <th>Jam</th>
                     <th>Catatan</th>
@@ -100,6 +101,12 @@
                         <td>
 
                             {{ $reservasi->user->name ?? '-' }}
+
+                        </td>
+
+                        <td>
+
+                            {{ $reservasi->meja->nomor_meja ?? '-' }}
 
                         </td>
 
@@ -149,7 +156,7 @@
 
                     <tr>
 
-                        <td colspan="6" class="text-center">
+                        <td colspan="7" class="text-center">
 
                             Belum ada histori reservasi
 

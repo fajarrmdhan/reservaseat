@@ -13,6 +13,8 @@ class AdminCabangDashboardController extends Controller
     {
         $cabangId = auth()->user()->cabang_id;
 
+        Reservasi::cancelExpiredPending(cabangId: $cabangId);
+
         $reservasiHariIni = Reservasi::where(
                 'cabang_id',
                 $cabangId
@@ -29,10 +31,7 @@ class AdminCabangDashboardController extends Controller
             )
             ->whereIn(
                 'status',
-                [
-                    'pending',
-                    'checked_in'
-                ]
+                Reservasi::ACTIVE_STATUSES
             )
             ->count();
 

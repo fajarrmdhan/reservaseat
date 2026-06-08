@@ -25,15 +25,33 @@ class CabangController extends Controller
             'alamat' => 'required',
             'jam_buka' => 'required',
             'jam_tutup' => 'required',
+            'foto_cabang' => 'nullable|image',
+            'denah_cabang' => 'nullable|image',
         ]);
+
+        $foto_cabang = null;
+        if ($request->hasFile('foto_cabang')) {
+            $file = $request->file('foto_cabang');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/cabangs'), $filename);
+            $foto_cabang = 'uploads/cabangs/' . $filename;
+        }
+
+        $denah_cabang = null;
+        if ($request->hasFile('denah_cabang')) {
+            $file = $request->file('denah_cabang');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/denah'), $filename);
+            $denah_cabang = 'uploads/denah/' . $filename;
+        }
 
         Cabang::create([
             'nama_cabang' => $request->nama_cabang,
             'alamat' => $request->alamat,
             'jam_buka' => $request->jam_buka,
             'jam_tutup' => $request->jam_tutup,
-            'foto_cabang' => null,
-            'denah_cabang' => null,
+            'foto_cabang' => $foto_cabang,
+            'denah_cabang' => $denah_cabang,
             'status' => 'active'
         ]);
 
@@ -59,15 +77,33 @@ class CabangController extends Controller
             'nama_cabang' => 'required',
             'alamat' => 'required',
             'jam_buka' => 'required',
-            'jam_tutup' => 'required'
+            'jam_tutup' => 'required',
+            'foto_cabang' => 'nullable|image',
+            'denah_cabang' => 'nullable|image',
         ]);
 
-        $cabang->update([
+        $data = [
             'nama_cabang' => $request->nama_cabang,
             'alamat' => $request->alamat,
             'jam_buka' => $request->jam_buka,
             'jam_tutup' => $request->jam_tutup,
-        ]);
+        ];
+
+        if ($request->hasFile('foto_cabang')) {
+            $file = $request->file('foto_cabang');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/cabangs'), $filename);
+            $data['foto_cabang'] = 'uploads/cabangs/' . $filename;
+        }
+
+        if ($request->hasFile('denah_cabang')) {
+            $file = $request->file('denah_cabang');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/denah'), $filename);
+            $data['denah_cabang'] = 'uploads/denah/' . $filename;
+        }
+
+        $cabang->update($data);
 
         return back()->with(
             'success',

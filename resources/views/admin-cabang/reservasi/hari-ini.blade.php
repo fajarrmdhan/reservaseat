@@ -14,6 +14,7 @@
                     <tr>
                         <th>Kode</th>
                         <th>Nama</th>
+                        <th>Meja</th>
                         <th>Jam</th>
                         <th>Catatan</th>
                         <th>Status</th>
@@ -30,6 +31,9 @@
                                 {{ $reservasi->user->name ?? '-' }}
                             </td>
                             <td>
+                                {{ $reservasi->meja->nomor_meja ?? '-' }}
+                            </td>
+                            <td>
                                 {{ $reservasi->jam_mulai }}
                             </td>
                             <td>
@@ -40,6 +44,13 @@
                                     <span class="badge bg-warning text-white">
                                         Pending
                                     </span>
+                                    @if ($reservasi->isPendingLate())
+                                        <div class="mt-1">
+                                            <span class="badge bg-danger text-white">
+                                                Terlambat {{ $reservasi->lateMinutes() }} menit
+                                            </span>
+                                        </div>
+                                    @endif
                                 @elseif($reservasi->status === 'checked_in')
                                     <span class="badge bg-success text-white">
                                         Checked In
@@ -52,6 +63,11 @@
                                     <span class="badge bg-danger text-white">
                                         Cancelled
                                     </span>
+                                    @if ($reservasi->cancel_reason === 'auto_timeout')
+                                        <div class="mt-1 text-muted small">
+                                            Auto-cancel karena lewat 30 menit
+                                        </div>
+                                    @endif
                                 @endif
                             </td>
                             <td>
@@ -137,7 +153,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center">
+                            <td colspan="7" class="text-center">
                                 Belum ada reservasi hari ini
                             </td>
                         </tr>

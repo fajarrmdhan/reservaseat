@@ -3,6 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title')</title>
 
         <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css" rel="stylesheet">
@@ -22,8 +23,21 @@
 
             }
 
+            html,
             body {
                 font-family: 'Inter', sans-serif;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .page {
+                min-height: 100vh;
+            }
+
+            .page-wrapper {
+                min-width: 0;
             }
 
             .card {
@@ -52,6 +66,14 @@
 
                 border-radius: 10px;
             }
+
+            .offcanvas .navbar-nav {
+                padding: 0;
+            }
+
+            .offcanvas .nav-link {
+                padding: .75rem 1rem;
+            }
         </style>
     </head>
 
@@ -73,6 +95,22 @@
                             <div class="alert alert-success">
 
                                 {{ session('success') }}
+
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+
+                                <ul class="mb-0">
+
+                                    @foreach ($errors->all() as $error)
+                                        <li>
+                                            {{ $error }}
+                                        </li>
+                                    @endforeach
+
+                                </ul>
 
                             </div>
                         @endif

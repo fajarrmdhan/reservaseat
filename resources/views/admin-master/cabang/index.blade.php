@@ -37,6 +37,80 @@
 
     </div>
 
+    <x-modal id="modalTambahCabang" title="Tambah Cabang">
+
+        <form method="POST" action="/cabangs" enctype="multipart/form-data">
+
+            @csrf
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Nama Cabang
+                </label>
+
+                <input type="text" name="nama_cabang" class="form-control" required>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Alamat
+                </label>
+
+                <textarea name="alamat" class="form-control" required></textarea>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label class="form-label">
+                        Jam Buka
+                    </label>
+
+                    <input type="time" name="jam_buka" class="form-control" required>
+
+                </div>
+
+                <div class="col">
+
+                    <label class="form-label">
+                        Jam Tutup
+                    </label>
+
+                    <input type="time" name="jam_tutup" class="form-control" required>
+
+                </div>
+
+            </div>
+
+            <div class="mb-3 mt-3">
+                <label class="form-label">Foto Cabang</label>
+                <input type="file" name="foto_cabang" class="form-control" accept="image/*">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Denah Cabang</label>
+                <input type="file" name="denah_cabang" class="form-control" accept="image/*">
+            </div>
+
+            <div class="mt-4 text-end">
+
+                <button type="submit" class="btn btn-primary">
+
+                    Simpan
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </x-modal>
+
     <div class="card">
 
         <div class="table-responsive">
@@ -65,7 +139,7 @@
 
                 <tbody>
 
-                    @foreach ($cabangs as $cabang)
+                    @forelse ($cabangs as $cabang)
                         <tr>
 
                             <td>
@@ -129,73 +203,9 @@
 
                         </tr>
 
-                        <x-modal id="modalTambahCabang" title="Tambah Cabang">
-
-                            <form method="POST" action="/cabangs">
-
-                                @csrf
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-                                        Nama Cabang
-                                    </label>
-
-                                    <input type="text" name="nama_cabang" class="form-control">
-
-                                </div>
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-                                        Alamat
-                                    </label>
-
-                                    <textarea name="alamat" class="form-control"></textarea>
-
-                                </div>
-
-                                <div class="row">
-
-                                    <div class="col">
-
-                                        <label class="form-label">
-                                            Jam Buka
-                                        </label>
-
-                                        <input type="time" name="jam_buka" class="form-control">
-
-                                    </div>
-
-                                    <div class="col">
-
-                                        <label class="form-label">
-                                            Jam Tutup
-                                        </label>
-
-                                        <input type="time" name="jam_tutup" class="form-control">
-
-                                    </div>
-
-                                </div>
-
-                                <div class="mt-4 text-end">
-
-                                    <button type="submit" class="btn btn-primary">
-
-                                        Simpan
-
-                                    </button>
-
-                                </div>
-
-                            </form>
-
-                        </x-modal>
-
                         <x-modal id="editCabang{{ $cabang->_id }}" title="Edit Cabang">
 
-                            <form method="POST" action="/cabangs/{{ $cabang->_id }}">
+                            <form method="POST" action="/cabangs/{{ $cabang->_id }}" enctype="multipart/form-data">
 
                                 @csrf
                                 @method('PATCH')
@@ -207,7 +217,7 @@
                                     </label>
 
                                     <input type="text" name="nama_cabang" value="{{ $cabang->nama_cabang }}"
-                                        class="form-control">
+                                        class="form-control" required>
 
                                 </div>
 
@@ -217,7 +227,7 @@
                                         Alamat
                                     </label>
 
-                                    <textarea name="alamat" class="form-control">{{ $cabang->alamat }}</textarea>
+                                    <textarea name="alamat" class="form-control" required>{{ $cabang->alamat }}</textarea>
 
                                 </div>
 
@@ -230,7 +240,7 @@
                                         </label>
 
                                         <input type="time" name="jam_buka" value="{{ $cabang->jam_buka }}"
-                                            class="form-control">
+                                            class="form-control" required>
 
                                     </div>
 
@@ -241,10 +251,26 @@
                                         </label>
 
                                         <input type="time" name="jam_tutup" value="{{ $cabang->jam_tutup }}"
-                                            class="form-control">
+                                            class="form-control" required>
 
                                     </div>
 
+                                </div>
+
+                                <div class="mb-3 mt-3">
+                                    <label class="form-label">Foto Cabang</label>
+                                    <input type="file" name="foto_cabang" class="form-control" accept="image/*">
+                                    @if($cabang->foto_cabang)
+                                        <div class="mt-2 text-muted small">Sudah ada foto: <a href="{{ asset($cabang->foto_cabang) }}" target="_blank">Lihat</a></div>
+                                    @endif
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Denah Cabang</label>
+                                    <input type="file" name="denah_cabang" class="form-control" accept="image/*">
+                                    @if($cabang->denah_cabang)
+                                        <div class="mt-2 text-muted small">Sudah ada denah: <a href="{{ asset($cabang->denah_cabang) }}" target="_blank">Lihat</a></div>
+                                    @endif
                                 </div>
 
                                 <div class="mt-4 text-end">
@@ -340,7 +366,19 @@
 
                             </x-modal>
                         @endif
-                    @endforeach
+                        <tr>
+
+                    @empty
+                        <tr>
+
+                            <td colspan="5" class="text-center text-secondary">
+
+                                Belum ada cabang
+
+                            </td>
+
+                        </tr>
+                    @endforelse
 
                 </tbody>
 

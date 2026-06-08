@@ -31,6 +31,22 @@ class ReservasiController extends Controller
 
         $user = $request->auth_user;
 
+        Reservasi::cancelExpiredPending(userId: $user->_id);
+
+        $activeReservation = Reservasi::where(
+            'user_id',
+            $user->_id
+        )
+            ->whereIn('status', Reservasi::ACTIVE_STATUSES)
+            ->first();
+
+        if ($activeReservation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kamu masih memiliki reservasi aktif. Selesaikan atau batalkan reservasi tersebut sebelum membuat reservasi baru.'
+            ], 422);
+        }
+
         $meja = Meja::find($request->meja_id);
 
         if (!$meja) {
@@ -63,6 +79,8 @@ class ReservasiController extends Controller
             ], 422);
         }
 
+        Reservasi::cancelExpiredPending(cabangId: $cabang->_id);
+
         $jamBuka = Carbon::createFromFormat(
             'H:i',
             $cabang->jam_buka
@@ -94,6 +112,19 @@ class ReservasiController extends Controller
             ], 422);
         }
 
+        if (
+            $this->isPastBookingTime(
+                $request->tanggal_booking,
+                $request->jam_mulai
+            )
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Jam reservasi sudah lewat'
+            ], 422);
+        }
+
         if ($meja->status !== 'active') {
 
             return response()->json([
@@ -116,11 +147,7 @@ class ReservasiController extends Controller
                 'tanggal_booking',
                 $request->tanggal_booking
             )
-            ->whereIn('status', [
-                'pending',
-                'paid',
-                'checked_in'
-            ])
+            ->whereIn('status', Reservasi::ACTIVE_STATUSES)
             ->get();
 
         foreach ($reservasis as $reservasi) {
@@ -185,11 +212,16 @@ class ReservasiController extends Controller
     {
         $user = $request->auth_user;
 
+        Reservasi::cancelExpiredPending(userId: $user->_id);
+
         $reservasis = Reservasi::where(
             'user_id',
             $user->_id
         )
-            ->latest()
+            ->orderBy(
+                'created_at',
+                'desc'
+            )
             ->get();
 
         return response()->json([
@@ -211,12 +243,20 @@ class ReservasiController extends Controller
 
             'durasi' => 'required|numeric|min:1|max:4',
 
-            'kapasitas' => 'required|numeric|min:1',
+            'kapasitas' => 'nullable|numeric|min:1',
         ]);
 
         $cabang = Cabang::find(
             $request->cabang_id
         );
+
+        if (!$cabang) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Cabang tidak ditemukan'
+            ], 404);
+        }
 
         if (
             $cabang->status !== 'active'
@@ -227,6 +267,8 @@ class ReservasiController extends Controller
                 'message' => 'Cabang dinonaktifkan'
             ], 422);
         }
+
+        Reservasi::cancelExpiredPending(cabangId: $cabang->_id);
 
         $jamBuka = Carbon::createFromFormat(
             'H:i',
@@ -259,6 +301,19 @@ class ReservasiController extends Controller
             ], 422);
         }
 
+        if (
+            $this->isPastBookingTime(
+                $request->tanggal_booking,
+                $request->jam_mulai
+            )
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Jam reservasi sudah lewat'
+            ], 422);
+        }
+
         $blockedSlots =
             SlotHelper::generateBlockedSlots(
                 $request->jam_mulai,
@@ -273,9 +328,17 @@ class ReservasiController extends Controller
                 'status',
                 'active'
             )
-            ->where(
+            ->when(
+                $request->filled('kapasitas'),
+                fn($query) =>
+                $query->where(
+                    'kapasitas',
+                    (int) $request->kapasitas
+                )
+            )
+            ->orderBy(
                 'kapasitas',
-                (int) $request->kapasitas
+                'asc'
             )
             ->get();
 
@@ -291,11 +354,7 @@ class ReservasiController extends Controller
                     'tanggal_booking',
                     $request->tanggal_booking
                 )
-                ->whereIn('status', [
-                    'pending',
-                    'paid',
-                    'checked_in'
-                ])
+                ->whereIn('status', Reservasi::ACTIVE_STATUSES)
                 ->get();
 
             $isAvailable = true;
@@ -355,6 +414,9 @@ class ReservasiController extends Controller
                 'message' => 'Reservasi tidak ditemukan'
             ], 404);
         }
+
+        $reservasi->autoCancelIfExpired();
+        $reservasi->refresh();
 
         if (!in_array(
             $reservasi->status,
@@ -460,6 +522,8 @@ class ReservasiController extends Controller
     ) {
         $user = $request->auth_user;
 
+        Reservasi::cancelExpiredPending(userId: $user->_id);
+
         $reservasi = Reservasi::where(
             '_id',
             $id
@@ -503,6 +567,8 @@ class ReservasiController extends Controller
     ) {
         $user = $request->auth_user;
 
+        Reservasi::cancelExpiredPending(userId: $user->_id);
+
         $reservasi = Reservasi::where(
             '_id',
             $id
@@ -545,6 +611,8 @@ class ReservasiController extends Controller
     public function listReservasiCabang(Request $request)
     {
         $user = $request->auth_user;
+
+        Reservasi::cancelExpiredPending(cabangId: $user->cabang_id);
 
         $reservasis = Reservasi::where(
             'cabang_id',
@@ -606,6 +674,8 @@ class ReservasiController extends Controller
 
         $today = now()->format('Y-m-d');
 
+        Reservasi::cancelExpiredPending(cabangId: $user->cabang_id);
+
         $reservasis = Reservasi::where(
             'cabang_id',
             $user->cabang_id
@@ -628,6 +698,7 @@ class ReservasiController extends Controller
     {
         $request->validate([
             'cabang_id' => 'required',
+            'tanggal_booking' => 'nullable|date|after_or_equal:today',
             'durasi' => 'required|numeric|min:1|max:4',
         ]);
 
@@ -675,8 +746,19 @@ class ReservasiController extends Controller
             $jamBuka->lte($jamTerakhir)
         ) {
 
-            $jamTersedia[] =
-                $jamBuka->format('H:i');
+            $jam = $jamBuka->format('H:i');
+
+            if (
+                !$request->filled('tanggal_booking')
+                ||
+                !$this->isPastBookingTime(
+                    $request->tanggal_booking,
+                    $jam
+                )
+            ) {
+
+                $jamTersedia[] = $jam;
+            }
 
             $jamBuka->addMinutes(30);
         }
@@ -686,5 +768,17 @@ class ReservasiController extends Controller
             'message' => 'List jam tersedia',
             'data' => $jamTersedia
         ]);
+    }
+
+    private function isPastBookingTime(
+        string $tanggalBooking,
+        string $jamMulai
+    ): bool {
+        $bookingDateTime = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $tanggalBooking . ' ' . $jamMulai
+        );
+
+        return $bookingDateTime->lte(now());
     }
 }

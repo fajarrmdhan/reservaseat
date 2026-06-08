@@ -7,8 +7,6 @@
 
         <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css" rel="stylesheet">
 
-        <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css" rel="stylesheet">
-
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,8 +20,21 @@
 
             }
 
+            html,
             body {
                 font-family: 'Inter', sans-serif;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .page {
+                min-height: 100vh;
+            }
+
+            .page-wrapper {
+                min-width: 0;
             }
 
             .card {
@@ -52,6 +63,14 @@
 
                 border-radius: 10px;
             }
+
+            .offcanvas .navbar-nav {
+                padding: 0;
+            }
+
+            .offcanvas .nav-link {
+                padding: .75rem 1rem;
+            }
         </style>
     </head>
 
@@ -65,7 +84,6 @@
 
                 @include('partials.navbarcabang')
 
-
                 <div class="page-body">
                     <div class="container-xl">
 
@@ -73,6 +91,30 @@
                             <div class="alert alert-success">
 
                                 {{ session('success') }}
+
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger">
+
+                                {{ session('error') }}
+
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+
+                                <ul class="mb-0">
+
+                                    @foreach ($errors->all() as $error)
+                                        <li>
+                                            {{ $error }}
+                                        </li>
+                                    @endforeach
+
+                                </ul>
 
                             </div>
                         @endif
@@ -87,7 +129,8 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        @stack('scripts')
 
     </body>
 

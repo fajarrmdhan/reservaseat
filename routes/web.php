@@ -8,10 +8,22 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\AdminCabangDashboardController;
 use App\Http\Controllers\Web\AdminCabangReservasiController;
 use App\Http\Controllers\Web\AdminCabangMejaController;
+use App\Http\Controllers\Web\AdminCabangPasswordController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Workaround for PHP built-in server dropping connections on static files
+Route::get('/flutter-image/{path}', function ($path) {
+    $fullPath = public_path($path);
+    if (file_exists($fullPath)) {
+        return response()->file($fullPath);
+    }
+    abort(404);
+})->where('path', '.*');
+
+
 
 Route::get(
     '/dashboard',
@@ -106,6 +118,16 @@ Route::prefix('admin-cabang')
             [AdminCabangReservasiController::class, 'hariIni']
         );
 
+        Route::get(
+            '/scan-reservasi',
+            [AdminCabangReservasiController::class, 'scan']
+        )->name('admin-cabang.reservasi.scan');
+
+        Route::post(
+            '/scan-reservasi',
+            [AdminCabangReservasiController::class, 'processScan']
+        )->name('admin-cabang.reservasi.scan.process');
+
         Route::resource(
             'meja',
             AdminCabangMejaController::class
@@ -140,6 +162,16 @@ Route::prefix('admin-cabang')
             '/histori-reservasi',
             [AdminCabangReservasiController::class, 'histori']
         )->name('admin-cabang.histori');
+
+        Route::get(
+            '/ganti-password',
+            [AdminCabangPasswordController::class, 'edit']
+        )->name('admin-cabang.password.edit');
+
+        Route::patch(
+            '/ganti-password',
+            [AdminCabangPasswordController::class, 'update']
+        )->name('admin-cabang.password.update');
     });
 
 //login page

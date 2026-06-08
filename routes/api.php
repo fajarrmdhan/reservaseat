@@ -14,6 +14,8 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
 
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
         Route::get(
         '/cabangs',
         [CabangController::class, 'index']
@@ -25,7 +27,11 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('api.auth')->group(function () {
         Route::get('/profile', [AuthController::class, 'profile']);
+        Route::get('/user', [AuthController::class, 'user']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/user/update-profile', [AuthController::class, 'updateProfile']);
+        Route::post('/user/change-email', [AuthController::class, 'changeEmail']);
+        Route::post('/user/change-password', [AuthController::class, 'changePassword']);
     });
 
     Route::middleware(['api.auth', 'role:customer'])->group(function () {

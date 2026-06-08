@@ -25,7 +25,7 @@
 
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahAdmin">
 
-                    Tambah Admin
+                    Tambah Admin Cabang
 
                 </button>
 
@@ -63,7 +63,7 @@
 
                 <tbody>
 
-                    @foreach ($admins as $admin)
+                    @forelse ($admins as $admin)
                         <tr>
 
                             <td>
@@ -140,7 +140,8 @@
                                         Nama
                                     </label>
 
-                                    <input type="text" name="name" value="{{ $admin->name }}" class="form-control">
+                                    <input type="text" name="name" value="{{ $admin->name }}" class="form-control"
+                                        required>
 
                                 </div>
 
@@ -150,7 +151,8 @@
                                         Email
                                     </label>
 
-                                    <input type="email" name="email" value="{{ $admin->email }}" class="form-control">
+                                    <input type="email" name="email" value="{{ $admin->email }}" class="form-control"
+                                        required>
 
                                 </div>
 
@@ -160,7 +162,8 @@
                                         Telepon
                                     </label>
 
-                                    <input type="text" name="phone" value="{{ $admin->phone }}" class="form-control">
+                                    <input type="tel" name="phone" value="{{ $admin->phone }}" class="form-control"
+                                        pattern="[0-9]{1,}" required>
 
                                 </div>
 
@@ -170,7 +173,7 @@
                                         Cabang
                                     </label>
 
-                                    <select name="cabang_id" class="form-select">
+                                    <select name="cabang_id" class="form-select" required>
 
                                         @foreach ($cabangs as $cabang)
                                             <option value="{{ $cabang->_id }}"
@@ -350,7 +353,17 @@
                             </form>
 
                         </x-modal>
-                    @endforeach
+                    @empty
+                        <tr>
+
+                            <td colspan="5" class="text-center text-secondary">
+
+                                Belum ada admin cabang
+
+                            </td>
+
+                        </tr>
+                    @endforelse
 
                 </tbody>
 
@@ -372,7 +385,7 @@
                     Nama
                 </label>
 
-                <input type="text" name="name" class="form-control">
+                <input type="text" name="name" class="form-control" required>
 
             </div>
 
@@ -382,7 +395,7 @@
                     Email
                 </label>
 
-                <input type="email" name="email" class="form-control">
+                <input type="email" name="email" class="form-control" required>
 
             </div>
 
@@ -392,7 +405,7 @@
                     Telepon
                 </label>
 
-                <input type="text" name="phone" class="form-control">
+                <input type="text" name="phone" class="form-control" required>
 
             </div>
 
@@ -402,7 +415,13 @@
                     Cabang
                 </label>
 
-                <select name="cabang_id" class="form-select">
+                <select name="cabang_id" class="form-select" required>
+
+                    <option value="" disabled selected>
+
+                        Pilih Cabang
+
+                    </option>
 
                     @foreach ($cabangs as $cabang)
                         <option value="{{ $cabang->_id }}">
