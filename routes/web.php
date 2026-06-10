@@ -11,7 +11,7 @@ use App\Http\Controllers\Web\AdminCabangMejaController;
 use App\Http\Controllers\Web\AdminCabangPasswordController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 // Workaround for PHP built-in server dropping connections on static files
